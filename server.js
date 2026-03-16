@@ -22,9 +22,9 @@ setInterval(() => {
 
 // 3. ปรับ Route หน้าหลัก
 app.get("/", (req, res) => {
-  // ตรวจสอบให้แน่ใจว่าไฟล์ Timer.html อยู่ในโฟลเดอร์เดียวกับไฟล์ js นี้
+  // ตรวจสอบให้แน่ใจว่าไฟล์ timer.html อยู่ในโฟลเดอร์เดียวกับไฟล์ js นี้
   // หรือถ้าแยกโฟลเดอร์ให้ระบุให้ถูกต้อง
-  res.sendFile(path.join(__dirname, "Timer.html"), (err) => {
+  res.sendFile(path.join(__dirname, "timer.html"), (err) => {
     if (err) {
       res.status(500).send("ไม่พบไฟล์ Timer.html ใน Server");
     }
