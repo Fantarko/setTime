@@ -1,78 +1,115 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Timer</title>
+    <style>
+        :root {
+            --bg-color: rgba(0, 0, 0, 0); /* โปร่งแสงสำหรับ OBS */
+            --accent-1: #ff512f;
+            --accent-2: #dd2476;
+            --text-glow: #ffffff;
+        }
 
-<style>
-body{
-  margin:0;
-  background:transparent;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  font-family:Arial, sans-serif;
-}
+        body {
+            margin: 0;
+            background: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
 
-#timer{
-  font-size:120px;
-  font-weight:bold;
-  color:white;
-  padding:30px 80px;
-  border-radius:25px;
+        /* กล่องจับเวลาสไตล์ Modern Glassmorphism */
+        #timer-container {
+            position: relative;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px 60px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
 
-  background:linear-gradient(135deg,#ff512f,#dd2476);
+        #timer {
+            font-size: 140px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums; /* ป้องกันตัวเลขขยับไปมาเวลาเปลี่ยนเลข */
+            background: linear-gradient(180deg, #fff 30%, #ccc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255, 81, 47, 0.8));
+            line-height: 1.1;
+            letter-spacing: -2px;
+        }
 
-  box-shadow:
-  0 0 40px rgba(255,0,120,0.6),
-  0 0 80px rgba(255,0,120,0.4);
+        /* เส้นขีดตกแต่งข้างล่าง */
+        .glow-bar {
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent-1), var(--accent-2), transparent);
+            margin-top: 10px;
+            border-radius: 2px;
+            box-shadow: 0 0 15px var(--accent-2);
+            animation: pulse 2s infinite ease-in-out;
+        }
 
-  text-shadow:
-  0 0 10px rgba(255,255,255,0.8),
-  0 0 20px rgba(255,100,200,0.8);
-}
-</style>
-
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scaleX(0.9); }
+            50% { opacity: 1; transform: scaleX(1); }
+        }
+    </style>
 </head>
-
 <body>
 
-<div id="timer">00:00</div>
+<div id="timer-container">
+    <div id="timer">00:00</div>
+    <div class="glow-bar"></div>
+</div>
 
 <script>
+    let lastTime = -1;
 
-let time = 0
+    function formatTime(sec) {
+        if (sec < 0) sec = 0;
+        let h = Math.floor(sec / 3600);
+        let m = Math.floor((sec % 3600) / 60);
+        let s = sec % 60;
 
-function formatTime(sec){
+        const pad = (n) => String(n).padStart(2, '0');
 
-  let h = Math.floor(sec/3600)
-  let m = Math.floor((sec % 3600) / 60)
-  let s = sec % 60
+        if (h > 0) {
+            return `${pad(h)}:${pad(m)}:${pad(s)}`;
+        }
+        return `${pad(m)}:${pad(s)}`;
+    }
 
-  if(h > 0){
-    return String(h).padStart(2,'0') + ":" +
-           String(m).padStart(2,'0') + ":" +
-           String(s).padStart(2,'0')
-  }
+    async function fetchTime() {
+        try {
+            const res = await fetch("/time");
+            if (!res.ok) throw new Error("Network error");
+            const data = await res.json();
+            
+            // อัปเดตเฉพาะเวลาที่เปลี่ยนไปจริงๆ เพื่อความประหยัดทรัพยากร
+            if (data.time !== lastTime) {
+                document.getElementById("timer").innerText = formatTime(data.time);
+                lastTime = data.time;
+            }
+        } catch (e) {
+            console.warn("Connection lost - reconnecting...");
+            document.getElementById("timer").style.opacity = "0.5"; // หรี่ไฟเมื่อหลุด
+        }
+    }
 
-  return String(m).padStart(2,'0') + ":" +
-         String(s).padStart(2,'0')
-}
-
-async function fetchTime(){
-  try{
-    const res = await fetch("/time")
-    const data = await res.json()
-    time = data.time
-    document.getElementById("timer").innerText = formatTime(time)
-  }catch(e){
-    console.log("server offline")
-  }
-}
-
-fetchTime() // โหลดทันที
-setInterval(fetchTime,1000)
-
+    // อัปเดตทุก 1 วินาที
+    setInterval(fetchTime, 1000);
+    fetchTime(); 
 </script>
 
 </body>
