@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<style>
+body{
+  margin:0;
+  background:transparent;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:Arial, sans-serif;
+}
+
+#timer{
+  font-size:120px;
+  font-weight:bold;
+  color:white;
+  padding:30px 80px;
+  border-radius:25px;
+
+  background:linear-gradient(135deg,#ff512f,#dd2476);
+
+  box-shadow:
+  0 0 40px rgba(255,0,120,0.6),
+  0 0 80px rgba(255,0,120,0.4);
+
+  text-shadow:
+  0 0 10px rgba(255,255,255,0.8),
+  0 0 20px rgba(255,100,200,0.8);
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="timer">00:00</div>
+
+<script>
+
+let time = 0
+
+function formatTime(sec){
+
+  let h = Math.floor(sec/3600)
+  let m = Math.floor((sec % 3600) / 60)
+  let s = sec % 60
+
+  if(h > 0){
+    return String(h).padStart(2,'0') + ":" +
+           String(m).padStart(2,'0') + ":" +
+           String(s).padStart(2,'0')
+  }
+
+  return String(m).padStart(2,'0') + ":" +
+         String(s).padStart(2,'0')
+}
+
+async function fetchTime(){
+  try{
+    const res = await fetch("/time")
+    const data = await res.json()
+    time = data.time
+    document.getElementById("timer").innerText = formatTime(time)
+  }catch(e){
+    console.log("server offline")
+  }
+}
+
+fetchTime() // โหลดทันที
+setInterval(fetchTime,1000)
+
+</script>
+
+</body>
+</html>
