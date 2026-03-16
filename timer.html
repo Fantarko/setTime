@@ -6,7 +6,7 @@
     <title>Stream Timer</title>
     <style>
         :root {
-            --bg-color: rgba(0, 0, 0, 0); /* โปร่งแสงสำหรับ OBS */
+            --bg-color: rgba(0, 0, 0, 0); 
             --accent-1: #ff512f;
             --accent-2: #dd2476;
             --text-glow: #ffffff;
@@ -21,9 +21,10 @@
             height: 100vh;
             overflow: hidden;
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            /* เพิ่ม cursor เพื่อให้รู้ว่าคลิกได้ */
+            cursor: pointer; 
         }
 
-        /* กล่องจับเวลาสไตล์ Modern Glassmorphism */
         #timer-container {
             position: relative;
             background: rgba(0, 0, 0, 0.6);
@@ -38,9 +39,10 @@
         }
 
         #timer {
-            font-size: 140px;
+            /* ปรับลดขนาดลงเล็กน้อยจาก 140px เป็น 110px เพื่อให้เลข 02:00:00 ไม่ล้น */
+            font-size: 110px; 
             font-weight: 900;
-            font-variant-numeric: tabular-nums; /* ป้องกันตัวเลขขยับไปมาเวลาเปลี่ยนเลข */
+            font-variant-numeric: tabular-nums;
             background: linear-gradient(180deg, #fff 30%, #ccc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -49,7 +51,6 @@
             letter-spacing: -2px;
         }
 
-        /* เส้นขีดตกแต่งข้างล่าง */
         .glow-bar {
             width: 100%;
             height: 4px;
@@ -69,7 +70,7 @@
 <body>
 
 <div id="timer-container">
-    <div id="timer">00:00</div>
+    <div id="timer">02:00:00</div>
     <div class="glow-bar"></div>
 </div>
 
@@ -81,14 +82,27 @@
         let h = Math.floor(sec / 3600);
         let m = Math.floor((sec % 3600) / 60);
         let s = sec % 60;
-
         const pad = (n) => String(n).padStart(2, '0');
-
-        if (h > 0) {
-            return `${pad(h)}:${pad(m)}:${pad(s)}`;
-        }
-        return `${pad(m)}:${pad(s)}`;
+        
+        // บังคับแสดง HH:MM:SS เสมอ
+        return `${pad(h)}:${pad(m)}:${pad(s)}`;
     }
+
+    // --- ส่วนที่เพิ่มเข้ามาเพื่อให้แตะแล้วเวลาเดิน ---
+    async function startTimer() {
+        try {
+            await fetch("/start", { method: "POST" });
+            console.log("Sent start command to server");
+        } catch (e) {
+            console.error("Failed to start:", e);
+        }
+    }
+
+    // เมื่อคลิกหน้าจอ ให้เรียก startTimer (ทำงานครั้งเดียว)
+    document.body.addEventListener("click", () => {
+        startTimer();
+    }, { once: true });
+    // ------------------------------------------
 
     async function fetchTime() {
         try {
@@ -96,18 +110,16 @@
             if (!res.ok) throw new Error("Network error");
             const data = await res.json();
             
-            // อัปเดตเฉพาะเวลาที่เปลี่ยนไปจริงๆ เพื่อความประหยัดทรัพยากร
             if (data.time !== lastTime) {
                 document.getElementById("timer").innerText = formatTime(data.time);
                 lastTime = data.time;
+                document.getElementById("timer").style.opacity = "1";
             }
         } catch (e) {
-            console.warn("Connection lost - reconnecting...");
-            document.getElementById("timer").style.opacity = "0.5"; // หรี่ไฟเมื่อหลุด
+            document.getElementById("timer").style.opacity = "0.5";
         }
     }
 
-    // อัปเดตทุก 1 วินาที
     setInterval(fetchTime, 1000);
     fetchTime(); 
 </script>
