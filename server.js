@@ -16,7 +16,7 @@ setInterval(() => {
   }
 }, 1000);
 
-// Route สำหรับสั่งให้เริ่มนับ (เรียกเมื่อคลิกหน้าจอ)
+// Route สำหรับสั่งให้เริ่มนับ 
 app.post("/start", (req, res) => {
   isPaused = false;
   console.log("Timer started!");
