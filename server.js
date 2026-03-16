@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 // แนะนำให้ใช้ path.join เพื่อป้องกันปัญหาเรื่องเครื่องหมาย / ในระบบปฏิบัติการที่ต่างกัน
 app.use(express.static(path.join(__dirname, "public"))); 
 
-let time = 1800;
+let time = 7200;
 
 // นับถอยหลังทุก 1 วิ
 setInterval(() => {
