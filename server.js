@@ -7,7 +7,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public"))); 
 
 // --- ส่วนที่แก้ไข ---
-let time = 1200;       // เริ่มต้นที่ 2 ชั่วโมง (7200 วินาที)
+let time = 2500;       // เริ่มต้นที่ 2 ชั่วโมง (7200 วินาที)
 let isPaused = true;   // ตั้งค่าเริ่มต้นให้หยุดไว้ก่อน
 
 setInterval(() => {
