@@ -7,7 +7,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public"))); 
 
 // --- ตัวแปรหลัก ---
-let time = 3600;      // เริ่มต้นที่ 1 ชั่วโมง (ปรับตามต้องการ)
+let time = 7200;      // เริ่มต้นที่ 1 ชั่วโมง (ปรับตามต้องการ)
 let isPaused = true;   // ตั้งค่าเริ่มต้นให้หยุดไว้ก่อน
 
 setInterval(() => {
